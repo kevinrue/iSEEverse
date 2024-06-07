@@ -1,0 +1,136 @@
+# Source: <https://bioconductor.org/packages/release/bioc/vignettes/iSEEpathways/inst/doc/integration.R>
+# (Adapted!)
+
+library(iSEEpathways)
+
+## ----message=FALSE, warning=FALSE-------------------------------------------------------------------------------------
+library("airway")
+data("airway")
+airway$dex <- relevel(airway$dex, "untrt")
+
+## ----message=FALSE, warning=FALSE-------------------------------------------------------------------------------------
+library("org.Hs.eg.db")
+library("scater")
+rowData(airway)[["ENSEMBL"]] <- rownames(airway)
+rowData(airway)[["SYMBOL"]] <- mapIds(org.Hs.eg.db, rownames(airway), "SYMBOL", "ENSEMBL")
+rowData(airway)[["uniquifyFeatureNames"]] <- uniquifyFeatureNames(
+  ID = rowData(airway)[["ENSEMBL"]],
+  names = rowData(airway)[["SYMBOL"]]
+)
+rownames(airway) <- rowData(airway)[["uniquifyFeatureNames"]]
+
+## ---------------------------------------------------------------------------------------------------------------------
+library("scuttle")
+airway <- logNormCounts(airway)
+
+## ----message=FALSE, warning=FALSE-------------------------------------------------------------------------------------
+library("edgeR")
+
+counts <- assay(airway, "counts")
+design <- model.matrix(~ 0 + dex + cell, data = colData(airway))
+
+keep <- filterByExpr(counts, design)
+v <- voom(counts[keep,], design, plot=FALSE)
+fit <- lmFit(v, design)
+contr <- makeContrasts("dextrt - dexuntrt", levels = colnames(coef(fit)))
+tmp <- contrasts.fit(fit, contr)
+tmp <- eBayes(tmp)
+res_limma <- topTable(tmp, sort.by = "P", n = Inf)
+head(res_limma)
+
+## ---------------------------------------------------------------------------------------------------------------------
+library("iSEEde")
+airway <- iSEEde::embedContrastResults(res_limma, airway, name = "Limma-Voom", class = "limma")
+rowData(airway)
+
+## ---------------------------------------------------------------------------------------------------------------------
+library("org.Hs.eg.db")
+pathways <- AnnotationDbi::select(org.Hs.eg.db, keys(org.Hs.eg.db, "ENSEMBL"), c("GOALL"), keytype = "ENSEMBL")
+pathways <- subset(pathways, ONTOLOGYALL == "BP")
+pathways <- unique(pathways[, c("ENSEMBL", "GOALL")])
+pathways <- merge(pathways, rowData(airway)[, c("ENSEMBL", "uniquifyFeatureNames")])
+pathways <- split(pathways$uniquifyFeatureNames, pathways$GOALL)
+
+## ---------------------------------------------------------------------------------------------------------------------
+map_GO <- function(pathway_id, se) {
+  pathway_ensembl <- mapIds(org.Hs.eg.db, pathway_id, "ENSEMBL", keytype = "GOALL", multiVals = "CharacterList")[[pathway_id]]
+  pathway_rownames <- rownames(se)[rowData(se)[["gene_id"]] %in% pathway_ensembl]
+  pathway_rownames
+}
+airway <- registerAppOptions(airway, Pathways.map.functions = list(GO = map_GO))
+
+## ---------------------------------------------------------------------------------------------------------------------
+library("fgsea")
+set.seed(42)
+stats <- na.omit(log2FoldChange(contrastResults(airway, "Limma-Voom")))
+fgseaRes <- fgsea(pathways = pathways,
+  stats    = stats,
+  minSize  = 15,
+  maxSize  = 500)
+head(fgseaRes[order(pval), ])
+
+library(dplyr)
+fgseaRes <- fgseaRes %>%
+  mutate(across(where(is.numeric), function(x) {
+    as.numeric(format(x, digits = 2))
+  }))
+
+## ---------------------------------------------------------------------------------------------------------------------
+library("iSEEpathways")
+fgseaRes <- fgseaRes[order(pval), ]
+airway <- embedPathwaysResults(
+  fgseaRes, airway, name = "fgsea (p-value)", class = "fgsea",
+  pathwayType = "GO", pathwaysList = pathways, featuresStats = stats)
+airway
+
+## ----warning=FALSE----------------------------------------------------------------------------------------------------
+stats <- na.omit(
+  log2FoldChange(contrastResults(airway, "Limma-Voom")) *
+    -log10(pValue(contrastResults(airway, "Limma-Voom")))
+)
+set.seed(42)
+fgseaRes <- fgsea(pathways = pathways,
+  stats    = na.omit(stats),
+  minSize  = 15,
+  maxSize  = 500)
+fgseaRes <- fgseaRes[order(pval), ]
+
+library(dplyr)
+fgseaRes <- fgseaRes %>%
+  mutate(across(where(is.numeric), function(x) {
+    as.numeric(format(x, digits = 2))
+  }))
+
+airway <- embedPathwaysResults(
+  fgseaRes, airway, name = "fgsea (p-value & fold-change)", class = "fgsea",
+  pathwayType = "GO", pathwaysList = pathways, featuresStats = stats)
+airway
+
+## ----warning=FALSE----------------------------------------------------------------------------------------------------
+library("GO.db")
+library("shiny")
+library("iSEE")
+go_details <- function(x) {
+  info <- AnnotationDbi::select(GO.db, x, c("TERM", "ONTOLOGY", "DEFINITION"), "GOID")
+  html <- list(p(strong(info$GOID), ":", info$TERM, paste0("(", info$ONTOLOGY, ")")))
+  if (!is.na(info$DEFINITION)) {
+    html <- append(html, list(p(info$DEFINITION)))
+  }
+  tagList(html)
+}
+airway <- registerAppOptions(airway, PathwaysTable.select.details = go_details)
+
+## ----"start", message=FALSE, warning=FALSE----------------------------------------------------------------------------
+app <- iSEE(airway, initial = list(
+  PathwaysTable(ResultName="fgsea (p-value)", Selected = "GO:0046324", PanelWidth = 2L),
+  VolcanoPlot(RowSelectionSource = "PathwaysTable1", ColorBy = "Row selection", PanelWidth = 2L),
+  ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1", PanelWidth = 2L, PanelHeight = 700L,
+    CustomRows = FALSE, ColumnData = "dex",
+    ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE),
+  FgseaEnrichmentPlot(ResultName="fgsea (p-value)", PathwayId = "GO:0046324", PanelWidth = 6LL)
+))
+
+if (interactive()) {
+  shiny::runApp(app)
+}
+
