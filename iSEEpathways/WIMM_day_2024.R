@@ -123,12 +123,26 @@ airway <- registerAppOptions(airway, PathwaysTable.select.details = go_details)
 ## ----"start", message=FALSE, warning=FALSE----------------------------------------------------------------------------
 app <- iSEE(airway, initial = list(
   PathwaysTable(ResultName="fgsea (p-value)", Selected = "GO:0046324", PanelWidth = 2L),
+  FgseaEnrichmentPlot(
+    ResultName="fgsea (p-value)", PathwayId = "GO:0046324", PanelWidth = 4L,
+    BrushData = list(xmin = -280.88574988977, xmax = 3554.8142539503,
+        ymin = -0.075085779852016, ymax = 0.68357088641439, coords_css = list(
+            xmin = 57.2244567871094, xmax = 203.224456787109,
+            ymin = 22.780647920138, ymax = 467.291584401186),
+        coords_img = list(xmin = 62.9469024658203, xmax = 223.54690246582,
+            ymin = 25.0587127121518, ymax = 514.020742841304),
+        img_css_ratio = list(x = 1.1, y = 1.1), mapping = list(
+            x = "rank", y = "ES"), domain = list(left = -843.05,
+            right = 17704.05, bottom = -0.0750857798520159, top = 0.683570886414392),
+        range = list(left = 39.4091965771124, right = 815.972602739726,
+            bottom = 514.020742841304, top = 25.0587127121518),
+        log = list(x = NULL, y = NULL), direction = "x", brushId = "FgseaEnrichmentPlot1_Brush",
+        outputId = "FgseaEnrichmentPlot1")),
   VolcanoPlot(RowSelectionSource = "PathwaysTable1", ColorBy = "Row selection", PanelWidth = 3L),
   ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
     PanelWidth = 3L, PanelHeight = 700L,
     CustomRows = FALSE, ColumnData = "dex",
-    ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE),
-  FgseaEnrichmentPlot(ResultName="fgsea (p-value)", PathwayId = "GO:0046324", PanelWidth = 4L)
+    ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE)
 ))
 
 if (interactive()) {
