@@ -120,30 +120,99 @@ go_details <- function(x) {
 }
 airway <- registerAppOptions(airway, PathwaysTable.select.details = go_details)
 
+initial <- list()
+
+################################################################################
+# Settings for Pathways Analysis Table 1
+################################################################################
+
+initial[["PathwaysTable1"]] <- new("PathwaysTable", ResultName = "fgsea (p-value)", Selected = "GO:0046324",
+  Search = "", SearchColumns = c("", "", "", "", "", "", ""
+  ), HiddenColumns = character(0), VersionInfo = list(iSEE = structure(list(
+    c(2L, 16L, 0L)), class = c("package_version", "numeric_version"
+    ))), PanelId = c(PathwaysTable = 1L), PanelHeight = 500L,
+  PanelWidth = 2L, SelectionBoxOpen = FALSE, RowSelectionSource = "---",
+  ColumnSelectionSource = "---", DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE,
+  ColumnSelectionDynamicSource = FALSE, RowSelectionRestrict = FALSE,
+  ColumnSelectionRestrict = FALSE, SelectionHistory = list())
+
+################################################################################
+# Settings for GSEA enrichment plot 1
+################################################################################
+
+initial[["FgseaEnrichmentPlot1"]] <- new("FgseaEnrichmentPlot", ResultName = "fgsea (p-value)", PathwayId = "GO:0046323",
+  BrushData = list(xmin = -280.88574988977, xmax = 3554.8142539503,
+    ymin = -0.075085779852016, ymax = 0.68357088641439, coords_css = list(
+      xmin = 57.2244567871094, xmax = 203.224456787109,
+      ymin = 22.780647920138, ymax = 467.291584401186),
+    coords_img = list(xmin = 62.9469024658203, xmax = 223.54690246582,
+      ymin = 25.0587127121518, ymax = 514.020742841304),
+    img_css_ratio = list(x = 1.1, y = 1.1), mapping = list(
+      x = "rank", y = "ES"), domain = list(left = -843.05,
+        right = 17704.05, bottom = -0.0750857798520159, top = 0.683570886414392),
+    range = list(left = 39.4091965771124, right = 815.972602739726,
+      bottom = 514.020742841304, top = 25.0587127121518),
+    log = list(x = NULL, y = NULL), direction = "x", brushId = "FgseaEnrichmentPlot1_Brush",
+    outputId = "FgseaEnrichmentPlot1"), VersionInfo = list(
+      iSEE = structure(list(c(2L, 16L, 0L)), class = c("package_version",
+        "numeric_version"))), PanelId = c(FgseaEnrichmentPlot = 1L),
+  PanelHeight = 500L, PanelWidth = 4L, SelectionBoxOpen = FALSE,
+  RowSelectionSource = "---", ColumnSelectionSource = "---",
+  DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE, ColumnSelectionDynamicSource = FALSE,
+  RowSelectionRestrict = FALSE, ColumnSelectionRestrict = FALSE,
+  SelectionHistory = list())
+
+################################################################################
+# Settings for Volcano plot 1
+################################################################################
+
+initial[["VolcanoPlot1"]] <- new("VolcanoPlot", ContrastName = "Limma-Voom", FacetRowByRowData = "gene_biotype",
+  FacetColumnByRowData = "gene_biotype", ColorByRowData = "gene_id",
+  ColorBySampleNameAssay = "logcounts", ColorByFeatureNameColor = "#FF0000",
+  ShapeByRowData = "gene_biotype", SizeByRowData = "entrezid",
+  TooltipRowData = c("gene_name", "gene_id", "gene_biotype"
+  ), FacetRowBy = "None", FacetColumnBy = "None", ColorBy = "Row selection",
+  ColorByDefaultColor = "#000000", ColorByFeatureName = "TSPAN6",
+  ColorByFeatureSource = "---", ColorByFeatureDynamicSource = FALSE,
+  ColorBySampleName = "SRR1039508", ColorBySampleSource = "---",
+  ColorBySampleDynamicSource = FALSE, ShapeBy = "None", SizeBy = "None",
+  SelectionAlpha = 0.1, ZoomData = numeric(0), BrushData = list(),
+  VisualBoxOpen = FALSE, VisualChoices = "Color", ContourAdd = FALSE,
+  ContourColor = "#0000FF", PointSize = 1, PointAlpha = 1,
+  Downsample = FALSE, DownsampleResolution = 200, CustomLabels = FALSE,
+  CustomLabelsText = "TSPAN6", FontSize = 1.5, LegendPointSize = 1,
+  LegendPosition = "Bottom", HoverInfo = TRUE, LabelCenters = FALSE,
+  LabelCentersBy = "gene_biotype", LabelCentersColor = "#000000",
+  VersionInfo = list(iSEE = structure(list(c(2L, 16L, 0L)), class = c("package_version",
+    "numeric_version"))), PanelId = c(VolcanoPlot = 1L), PanelHeight = 500L,
+  PanelWidth = 3L, SelectionBoxOpen = FALSE, RowSelectionSource = "FgseaEnrichmentPlot1",
+  ColumnSelectionSource = "---", DataBoxOpen = FALSE, RowSelectionDynamicSource = FALSE,
+  ColumnSelectionDynamicSource = FALSE, RowSelectionRestrict = FALSE,
+  ColumnSelectionRestrict = FALSE, SelectionHistory = list())
+
+################################################################################
+# Settings for Complex heatmap 1
+################################################################################
+
+initial[["ComplexHeatmapPlot1"]] <- new("ComplexHeatmapPlot", Assay = "logcounts", CustomRows = FALSE,
+  CustomRowsText = "TSPAN6", ClusterRows = TRUE, ClusterRowsDistance = "euclidean",
+  ClusterRowsMethod = "ward.D2", DataBoxOpen = FALSE, VisualChoices = "Annotations",
+  ColumnData = "dex", RowData = character(0), CustomBounds = FALSE,
+  LowerBound = NA_real_, UpperBound = NA_real_, AssayCenterRows = TRUE,
+  AssayScaleRows = FALSE, DivergentColormap = "purple < black < yellow",
+  ShowDimNames = "Rows", LegendPosition = "Bottom", LegendDirection = "Horizontal",
+  VisualBoxOpen = FALSE, NamesRowFontSize = 12, NamesColumnFontSize = 10,
+  ShowColumnSelection = FALSE, OrderColumnSelection = TRUE,
+  VersionInfo = list(iSEE = structure(list(c(2L, 16L, 0L)), class = c("package_version",
+    "numeric_version"))), PanelId = c(ComplexHeatmapPlot = 1L),
+  PanelHeight = 700L, PanelWidth = 3L, SelectionBoxOpen = FALSE,
+  RowSelectionSource = "FgseaEnrichmentPlot1", ColumnSelectionSource = "---",
+  RowSelectionDynamicSource = FALSE, ColumnSelectionDynamicSource = FALSE,
+  RowSelectionRestrict = FALSE, ColumnSelectionRestrict = FALSE,
+  SelectionHistory = list())
+
 ## ----"start", message=FALSE, warning=FALSE----------------------------------------------------------------------------
-app <- iSEE(airway, initial = list(
-  PathwaysTable(ResultName="fgsea (p-value)", Selected = "GO:0046324", PanelWidth = 2L),
-  FgseaEnrichmentPlot(
-    ResultName="fgsea (p-value)", PathwayId = "GO:0046324", PanelWidth = 4L,
-    BrushData = list(xmin = -280.88574988977, xmax = 3554.8142539503,
-        ymin = -0.075085779852016, ymax = 0.68357088641439, coords_css = list(
-            xmin = 57.2244567871094, xmax = 203.224456787109,
-            ymin = 22.780647920138, ymax = 467.291584401186),
-        coords_img = list(xmin = 62.9469024658203, xmax = 223.54690246582,
-            ymin = 25.0587127121518, ymax = 514.020742841304),
-        img_css_ratio = list(x = 1.1, y = 1.1), mapping = list(
-            x = "rank", y = "ES"), domain = list(left = -843.05,
-            right = 17704.05, bottom = -0.0750857798520159, top = 0.683570886414392),
-        range = list(left = 39.4091965771124, right = 815.972602739726,
-            bottom = 514.020742841304, top = 25.0587127121518),
-        log = list(x = NULL, y = NULL), direction = "x", brushId = "FgseaEnrichmentPlot1_Brush",
-        outputId = "FgseaEnrichmentPlot1")),
-  VolcanoPlot(RowSelectionSource = "PathwaysTable1", ColorBy = "Row selection", PanelWidth = 3L),
-  ComplexHeatmapPlot(RowSelectionSource = "PathwaysTable1",
-    PanelWidth = 3L, PanelHeight = 700L,
-    CustomRows = FALSE, ColumnData = "dex",
-    ClusterRows = TRUE, ClusterRowsDistance = "euclidean", AssayCenterRows = TRUE)
-))
+app <- iSEE(airway, initial = initial)
 
 if (interactive()) {
   shiny::runApp(app)
