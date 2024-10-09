@@ -1,7 +1,7 @@
-library("iSEEde")
-library("airway")
-library("DESeq2")
-library("iSEE")
+library(iSEE)
+library(iSEEde)
+library(airway)
+library(DESeq2)
 
 # Example data ----
 
@@ -16,13 +16,11 @@ res_deseq2 <- results(dds, contrast = list("dextrt", "dexuntrt"))
 # iSEE / iSEEde ---
 
 airway <- embedContrastResults(res_deseq2, airway, name = "dex: trt vs untrt")
-contrastResults(airway)
 
 app <- iSEE(airway, initial = list(
   DETable(
     PanelWidth = 12L,
     ContrastName="dex: trt vs untrt",
-    # HiddenColumns = c("baseMean", "lfcSE", "stat"),
     RoundDigits = TRUE
   )
 ))
