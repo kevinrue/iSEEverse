@@ -1,26 +1,24 @@
 library(iSEE)
-
 library(scRNAseq)
+library(scater)
 
 # Example data ----
-sce <- ReprocessedAllenData(assays="tophat_counts")
-class(sce)
 
-library(scater)
+sce <- ReprocessedAllenData(assays="tophat_counts")
+
 sce <- logNormCounts(sce, exprs_values="tophat_counts")
 
-sce <- runPCA(sce, ncomponents=4)
-sce <- runTSNE(sce)
-sce <- runUMAP(sce)
-rowData(sce)$ave_count <- rowMeans(assay(sce, "tophat_counts"))
-rowData(sce)$n_cells <- rowSums(assay(sce, "tophat_counts") > 0)
-sce
+rowData(sce)$row_var <- rowVars(assay(sce, "logcounts"))
+rowData(sce)$n_cells <- rowSums(assay(sce, "logcounts") > 0)
 
 # launch the app itself ----
 
 app <- iSEE(sce, initial = list(
-  RowDataTable(
-    PanelWidth = 12L
+  RowDataPlot(
+    PanelWidth = 12L,
+    YAxis = "row_var",
+    XAxis = "Row data",
+    XAxisRowData = "n_cells"
   )
 ))
 
