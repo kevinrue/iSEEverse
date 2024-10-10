@@ -4,6 +4,7 @@ library(scRNAseq)
 library(scater)
 
 # Example data ----
+
 sce <- ReprocessedAllenData(assays="tophat_counts")
 
 sce <- logNormCounts(sce, exprs_values="tophat_counts")
