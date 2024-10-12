@@ -1,7 +1,7 @@
 library(iSEE)
+library(iSEEu)
 library(scRNAseq)
 library(scater)
-library(iSEEu)
 
 # Example data ----
 
